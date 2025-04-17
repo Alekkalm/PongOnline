@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pong Online</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #game {
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      position: relative;
+    }
+    .paddle {
+      position: absolute;
+      width: 10px;
+      height: 60px;
+      background: #fff;
+    }
+    #paddle1 { left: 10px; }
+    #paddle2 { right: 10px; }
+    #ball {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #fff;
+      border-radius: 50%;
+    }
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="paddle1" class="paddle"></div>
+    <div id="paddle2" class="paddle"></div>
+    <div id="ball"></div>
+    <div id="score">Ожидание игроков...</div>
+  </div>
+
+  <script>
+    const ws = new WebSocket('ws://localhost:8080');
+    let playerId;
+    let paddle;
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      
+      if (data.type === 'init') {
+        playerId = data.playerId;
+        paddle = document.getElementById(`paddle${playerId}`);
+        document.getElementById('score').textContent = `Игрок ${playerId}`;
+      }
+
+      if (data.type === 'state') {
+        // Обновление ракеток
+        document.getElementById('paddle1').style.top = `${data.players[1]?.y || 50}vh`;
+        document.getElementById('paddle2').style.top = `${data.players[2]?.y || 50}vh`;
+        
+        // Обновление шарика
+        const ball = document.getElementById('ball');
+        ball.style.left = `${data.ball.x}vw`;
+        ball.style.top = `${data.ball.y}vh`;
+      }
+    };
+
+    // Управление ракеткой мышью
+    document.addEventListener('mousemove', (e) => {
+      if (!playerId) return;
+      const y = (e.clientY / window.innerHeight) * 100;
+      ws.send(JSON.stringify({ type: 'move', y }));
+    });
+  </script>
+</body>
+</html>
