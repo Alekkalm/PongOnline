@@ -1,0 +1,15 @@
+{
+  "name": "pongonline",
+  "version": "1.0.0",
+  "description": "Пример простой онлайн-игры для двух игроков с использованием Node.js (сервер) и Vanilla JS (клиенты). Игра — «Пинг-Понг» (шарик отбивается ракетками).",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.18.1"
+  }
+}
